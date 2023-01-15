@@ -1,15 +1,12 @@
 <?php
-
-include('common.php');
-
+include 'common.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = file_get_contents('php://input');
 
-    $is_create = comment_create($data);
+    $is_create = registation($data);
     if ($is_create){
-        echo "Comment saved successfully";
+        echo "User Registation successfully";
         return;
     }
-    echo "Can't save";
-   
+    echo "Can't create";
 }

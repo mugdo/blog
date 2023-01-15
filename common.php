@@ -85,3 +85,61 @@ function update($data){
         
 }
 
+function comment_create($data){
+    global $mysql;
+    $json = json_decode($data);
+    $blog_id = $json->id;
+    $description = $json->description;
+   
+    $sql = "INSERT INTO comments (blog, description) VALUES ('$blog_id', '$description')";
+    if ($mysql->query($sql) === TRUE) {
+        return true;
+        } else {
+        return false;
+    }
+}
+function registation($data){
+    global $mysql;
+    $json = json_decode($data);
+    $username = $json->username;
+    $password = $json->password;
+
+    $hashed_password=password_hash($password, PASSWORD_BCRYPT);
+   
+    $sql = "INSERT INTO user (username, password) VALUES ('$username', '$hashed_password')";
+    if ($mysql->query($sql) === TRUE) {
+        return true;
+        } else {
+        return false;
+    }
+}
+function login($data){
+    global $mysql;
+    $json = json_decode($data);
+    $username = $json->username;
+    $password = $json->password;
+    $sql = "SELECT * FROM user WHERE `username`='$username'";
+    $result = $mysql->query($sql);
+    if ($result->num_rows > 0) {
+        $row =  $result->fetch_assoc();
+        $token = bin2hex(random_bytes(64));
+        if(password_verify($password ,$row['password'])){
+            $sql = "SELECT * FROM auth WHERE `username`='$username'";
+            $result = $mysql->query($sql);
+            if ($result->num_rows > 0) {
+                $sql = "UPDATE auth SET token = '$token'  WHERE `username` = '$username'";
+                $update = $mysql->query($sql);
+                return $token;
+                } else {
+                    $sql = "INSERT INTO auth (token, username) VALUES ('$token', '$username ')";
+                    $create = $mysql->query($sql);
+                    return $token;  
+            }
+              
+        }
+    }
+}
+
+
+
+
